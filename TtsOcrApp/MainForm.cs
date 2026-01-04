@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using TtsOcrApp.Core.Services;
 
 namespace TtsOcrApp
@@ -15,7 +16,10 @@ namespace TtsOcrApp
                 AppContext.BaseDirectory,
                 "tessdata");
 
-            _ocrService = new TesseractOcrService(tessdataPath);
+            if (!IsDesignTime())
+            {
+                _ocrService = new TesseractOcrService(tessdataPath);
+            }
         }
 
         private void btnSelectRegion_Click(object sender, EventArgs e)
@@ -66,6 +70,11 @@ namespace TtsOcrApp
             using var g = Graphics.FromImage(bmp);
             g.CopyFromScreen(region.Location, Point.Empty, region.Size);
             return bmp;
+        }
+
+        private static bool IsDesignTime()
+        {
+            return LicenseManager.UsageMode == LicenseUsageMode.Designtime;
         }
     }
 }
