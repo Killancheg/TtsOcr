@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36811.4
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TtsOcrApp", "TtsOcrApp\TtsOcrApp.csproj", "{AAB31BCF-1CCF-40C3-9996-8A0D64F9BBCE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TtsOcrApp.Core", "TtsOcrApp.Core\TtsOcrApp.Core.csproj", "{5C86D744-5E74-4A4E-A38E-2AE6AAFB2E9B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{AAB31BCF-1CCF-40C3-9996-8A0D64F9BBCE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AAB31BCF-1CCF-40C3-9996-8A0D64F9BBCE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AAB31BCF-1CCF-40C3-9996-8A0D64F9BBCE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AAB31BCF-1CCF-40C3-9996-8A0D64F9BBCE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5C86D744-5E74-4A4E-A38E-2AE6AAFB2E9B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5C86D744-5E74-4A4E-A38E-2AE6AAFB2E9B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5C86D744-5E74-4A4E-A38E-2AE6AAFB2E9B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5C86D744-5E74-4A4E-A38E-2AE6AAFB2E9B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A9FA4A7F-F3AD-4185-8598-C1EAFA8B20B2}
+	EndGlobalSection
+EndGlobal
