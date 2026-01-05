@@ -93,7 +93,7 @@
             using var clearBrush = new SolidBrush(Color.FromArgb(40, 255, 255, 255));
             e.Graphics.FillRectangle(clearBrush, _currentRect);
 
-            using var pen = new Pen(Color.FromArgb(240, 255, 0, 0), 2);
+            using var pen = new Pen(Color.FromArgb(240, 255, 0, 0), 4);
             e.Graphics.DrawRectangle(pen, _currentRect);
 
             DrawCursorCrosshair(e);
