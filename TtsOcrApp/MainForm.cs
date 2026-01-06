@@ -6,7 +6,10 @@ namespace TtsOcrApp
 {
     public partial class MainForm : Form
     {
-        private GlobalHotkeyService? _hotkeyService;
+        private GlobalHotkeyService? _captureHotkeyService;
+        private GlobalHotkeyService? _cancelHotkeyService;
+        private IScreenCaptureService _screenCaptureService;
+        private PlaybackCoordinator? _playbackCoordinator;
 
         private IOcrService _ocrService;
         private Rectangle _selectedRegion = Rectangle.Empty;
@@ -15,14 +18,22 @@ namespace TtsOcrApp
         {
             InitializeComponent();
 
-            var tessdataPath = Path.Combine(
-                AppContext.BaseDirectory,
-                "tessdata");
+            if (IsDesignTime()) return;
 
-            if (!IsDesignTime())
-            {
-                _ocrService = new TesseractOcrService(tessdataPath);
-            }
+            var tessdataPath = Path.Combine(
+            AppContext.BaseDirectory,
+            "tessdata");
+
+            _ocrService = new TesseractOcrService(tessdataPath);
+
+            _screenCaptureService = new GdiScreenCaptureService();
+
+            _playbackCoordinator = new PlaybackCoordinator(
+                screenCapture: _screenCaptureService,
+                ocr: _ocrService,
+                getRegion: () => _selectedRegion,
+                onTextReady: text => txtOcrResult.Text = text,
+                uiContext: SynchronizationContext.Current);
         }
 
         private void btnSelectRegion_Click(object sender, EventArgs e)
@@ -42,9 +53,9 @@ namespace TtsOcrApp
                 $"Selected region: X={_selectedRegion.X}, Y={_selectedRegion.Y}, W={_selectedRegion.Width}, H={_selectedRegion.Height}";
         }
 
-        private async void btnCapture_Click(object sender, EventArgs e)
+        private void btnCapture_Click(object sender, EventArgs e)
         {
-            TriggerCapture();
+            _playbackCoordinator?.RequestCapture();
         }
 
         protected override void OnHandleCreated(EventArgs e)
@@ -54,7 +65,7 @@ namespace TtsOcrApp
             if (IsDesignTime())
                 return;
 
-            _hotkeyService = new GlobalHotkeyService(
+            _captureHotkeyService = new GlobalHotkeyService(
                 Handle,
                 hotkeyId: 1,
                 key: Keys.O,
@@ -62,62 +73,46 @@ namespace TtsOcrApp
                 shift: true,
                 alt: false);
 
-            _hotkeyService.HotkeyPressed += (_, _) =>
+            _cancelHotkeyService = new GlobalHotkeyService(
+                Handle,
+                hotkeyId: 2,
+                key: Keys.P,
+                ctrl: true,
+                shift: true,
+                alt: false);
+
+            _captureHotkeyService.HotkeyPressed += (_, _) =>
             {
-                TriggerCapture();
+                _playbackCoordinator?.RequestCapture();
+            };
+
+            _cancelHotkeyService.HotkeyPressed += (_, _) =>
+            {
+                _playbackCoordinator?.Cancel();
             };
         }
 
         protected override void WndProc(ref Message m)
         {
-            if (_hotkeyService?.HandleMessage(ref m) == true)
+            if (_captureHotkeyService?.HandleMessage(ref m) == true)
+                return;
+
+            if (_cancelHotkeyService?.HandleMessage(ref m) == true)
                 return;
 
             base.WndProc(ref m);
         }
 
-        private async void TriggerCapture()
-        {
-            if (_selectedRegion == Rectangle.Empty)
-                return;
-
-            using var bmp = CaptureRegion(_selectedRegion);
-
-            try
-            {
-                var text = await _ocrService.RecognizeTextAsync(bmp);
-
-                BeginInvoke(() =>
-                {
-                    txtOcrResult.Text = string.IsNullOrWhiteSpace(text)
-                        ? "(No text detected)"
-                        : text;
-                });
-            }
-            catch (Exception ex)
-            {
-                BeginInvoke(() =>
-                {
-                    txtOcrResult.Text = $"OCR error: {ex.Message}";
-                });
-            }
-        }
-
         protected override void OnFormClosed(FormClosedEventArgs e)
         {
-            _hotkeyService?.Dispose();
+            _captureHotkeyService?.Dispose();
+            _cancelHotkeyService?.Dispose();
+            _playbackCoordinator?.Dispose();
+            _playbackCoordinator = null;
             base.OnFormClosed(e);
         }
 
         //helpers
-
-        private static Bitmap CaptureRegion(Rectangle region)
-        {
-            var bmp = new Bitmap(region.Width, region.Height);
-            using var g = Graphics.FromImage(bmp);
-            g.CopyFromScreen(region.Location, Point.Empty, region.Size);
-            return bmp;
-        }
 
         private static bool IsDesignTime()
         {
